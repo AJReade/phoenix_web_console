@@ -37,15 +37,20 @@ defmodule Mix.Tasks.PhoenixWebConsole.Install do
   @impl Igniter.Mix.Task
   def igniter(igniter) do
     igniter
+    |> ensure_phoenix_web_console_dependency()
     |> ensure_phoenix_live_reload_dependency()
     |> update_dev_config()
     |> update_app_js()
     |> add_setup_instructions()
   end
 
+  defp ensure_phoenix_web_console_dependency(igniter) do
+    # Add phoenix_web_console dependency in the correct GitHub format
+    Igniter.Project.Deps.add_dep(igniter, {:phoenix_web_console, [github: "AJReade/phoenix_web_console", only: :dev]})
+  end
+
   defp ensure_phoenix_live_reload_dependency(igniter) do
-    # Note: The phoenix_web_console dependency is automatically added by Igniter
-    # We only need to ensure phoenix_live_reload is present
+    # Ensure phoenix_live_reload is available since it's required for web console functionality
     Igniter.Project.Deps.add_dep(igniter, {:phoenix_live_reload, "~> 1.5"}, type: :dev)
   end
 
