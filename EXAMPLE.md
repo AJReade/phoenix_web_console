@@ -7,8 +7,10 @@ This example shows how to use the PhoenixWebConsole package in a Phoenix applica
 In your Phoenix application directory, run:
 
 ```bash
-mix igniter.install phoenix_web_console
+mix igniter.install repo.phoenix_web_console AJReade/phoenix_web_console
 ```
+
+> **Note:** Once published to Hex, you can use `mix igniter.install phoenix_web_console` instead.
 
 This will automatically:
 - Add the dependency to your `mix.exs`

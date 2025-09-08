@@ -10,6 +10,12 @@ defmodule Mix.Tasks.PhoenixWebConsole.Install do
 
   ## Usage
 
+  From GitHub (before Hex publication):
+
+      mix igniter.install repo.phoenix_web_console AJReade/phoenix_web_console
+
+  From Hex (once published):
+
       mix igniter.install phoenix_web_console
 
   Or run directly:
@@ -38,6 +44,8 @@ defmodule Mix.Tasks.PhoenixWebConsole.Install do
   end
 
   defp ensure_phoenix_live_reload_dependency(igniter) do
+    # Note: The phoenix_web_console dependency is automatically added by Igniter
+    # We only need to ensure phoenix_live_reload is present
     Igniter.Project.Deps.add_dep(igniter, {:phoenix_live_reload, "~> 1.5"}, type: :dev)
   end
 
@@ -61,10 +69,16 @@ defmodule Mix.Tasks.PhoenixWebConsole.Install do
           updated_content
         else
           # Find the endpoint config and add live_reload
+          # Extract app name from existing config if possible
+          app_name = case Regex.run(~r/config\s+:([^,]+),/, content) do
+            [_, app] -> String.trim(app)
+            _ -> "my_app"
+          end
+
           String.replace(
             content,
             ~r/(config\s+:[^,]+,\s+[^,]+Endpoint,\s*\[)/,
-            "\\1\n  live_reload: [\n    web_console_logger: true,\n    patterns: [\n      ~r\"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$\",\n      ~r\"priv/gettext/.*(po)$\",\n      ~r\"lib/#{Mix.Phoenix.otp_app()}_web/(controllers|live|components)/.*(ex|heex)$\"\n    ]\n  ],"
+            "\\1\n  live_reload: [\n    web_console_logger: true,\n    patterns: [\n      ~r\"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$\",\n      ~r\"priv/gettext/.*(po)$\",\n      ~r\"lib/#{app_name}_web/(controllers|live|components)/.*(ex|heex)$\"\n    ]\n  ],"
           )
         end
       end

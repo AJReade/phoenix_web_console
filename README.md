@@ -15,8 +15,10 @@ Easy Phoenix web console logging installer using Igniter. Stream your Phoenix se
 **One command. Zero configuration. That's it.**
 
 ```bash
-mix igniter.install phoenix_web_console
+mix igniter.install repo.phoenix_web_console AJReade/phoenix_web_console
 ```
+
+> **Note:** Once published to Hex, you can use `mix igniter.install phoenix_web_console` instead.
 
 This automatically:
 - ✅ Adds the dependency to your `mix.exs`
