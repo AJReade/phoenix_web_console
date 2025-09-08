@@ -1,30 +1,31 @@
 # Phoenix Web Console Example Usage
 
-This example shows how to use the PhoenixWebConsole package in a Phoenix application.
+This example shows how to manually set up the PhoenixWebConsole package in a Phoenix application.
 
-## Installation via Igniter (Recommended)
+## Manual Installation
 
-In your Phoenix application directory, run:
+Follow these simple steps to add Phoenix Web Console to your application:
 
-```bash
-mix igniter.install repo.phoenix_web_console AJReade/phoenix_web_console
+### Step 1: Add Dependencies
+Add to your `mix.exs`:
+```elixir
+def deps do
+  [
+    {:phoenix_web_console, "~> 0.1.0"},
+    {:phoenix_live_reload, "~> 1.5"}  # Required for web console functionality
+  ]
+end
 ```
 
-> **Note:** Once published to Hex, you can use `mix igniter.install phoenix_web_console` instead.
+Run: `mix deps.get`
 
-This will automatically:
-- Add the dependency to your `mix.exs`
-- Update `config/dev.exs` to enable web console logging  
-- Update `assets/js/app.js` to receive server logs
-- Ensure `phoenix_live_reload ~> 1.5` is available
+### Step 2: Configure Your Endpoint
 
-## What Gets Configured
-
-### config/dev.exs
+Add to your `config/dev.exs`:
 ```elixir
 config :my_app, MyAppWeb.Endpoint,
   live_reload: [
-    web_console_logger: true,  # ← This gets added
+    web_console_logger: true,  # ← Enable web console logging
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$", 
@@ -33,10 +34,10 @@ config :my_app, MyAppWeb.Endpoint,
   ]
 ```
 
-### assets/js/app.js
-```javascript
-// This gets appended to your app.js:
+### Step 3: Enable Client-Side Logging
 
+Add to your `assets/js/app.js`:
+```javascript
 // Phoenix Web Console Logger - Stream server logs to browser console
 window.addEventListener("phx:live_reload:attached", ({detail: reloader}) => {
   // Enable server log streaming to client.
@@ -45,6 +46,8 @@ window.addEventListener("phx:live_reload:attached", ({detail: reloader}) => {
   window.liveReloader = reloader
 })
 ```
+
+That's it! 🎉
 
 ## Development Usage
 
@@ -90,6 +93,10 @@ When you have both server and client logs appearing in the browser console:
 - **Context preservation**: See server and client logs chronologically  
 - **Real-time updates**: Logs appear immediately as they happen
 - **Development only**: No impact on production builds
-- **Zero configuration**: Works out of the box after installation
+- **Simple setup**: Just add a few lines of code
 
 This makes Phoenix development much more productive by keeping all your debugging information in one place!
+
+## Automatic Installation (Advanced)
+
+For an automated installation experience, check out the `igniter` branch which includes Igniter-based installation that handles all the setup automatically.

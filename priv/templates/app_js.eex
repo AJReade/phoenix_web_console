@@ -1,7 +1,0 @@
-// Phoenix Web Console Logger - Stream server logs to browser console
-window.addEventListener("phx:live_reload:attached", ({detail: reloader}) => {
-  // Enable server log streaming to client.
-  // Disable with reloader.disableServerLogs()
-  reloader.enableServerLogs()
-  window.liveReloader = reloader
-})

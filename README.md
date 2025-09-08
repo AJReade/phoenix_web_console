@@ -1,51 +1,37 @@
 # PhoenixWebConsole
 
-Easy Phoenix web console logging installer using Igniter. Stream your Phoenix server logs directly to your browser's web console during development for faster debugging.
+Phoenix web console logging library. Stream your Phoenix server logs directly to your browser's web console during development for faster debugging.
 
 ## Features
 
 - 🔄 **Real-time server logs** in your browser console
 - 🎯 **Co-located debugging** - see server and client logs together
-- ⚡ **One-command install** using Igniter
-- 🛠️ **Zero configuration** - works out of the box
+- 🛠️ **Simple manual setup** - add a few lines of code
 - 🔧 **Development only** - no impact on production
 
 ## Installation
 
-**One command. Zero configuration. That's it.**
+### Step 1: Add the dependency
 
-```bash
-mix igniter.install repo.phoenix_web_console AJReade/phoenix_web_console
-```
-
-> **Note:** Once published to Hex, you can use `mix igniter.install phoenix_web_console` instead.
-
-This automatically:
-- ✅ Adds the dependency to your `mix.exs`
-- ✅ Updates your `config/dev.exs` to enable web console logging
-- ✅ Updates your `assets/js/app.js` to receive server logs
-- ✅ Ensures `phoenix_live_reload ~> 1.5` is available
-
-**No manual code changes required!**
-
-<details>
-<summary>💡 Advanced: Manual Installation (click to expand)</summary>
-
-If you prefer manual setup or need more control:
-
-1. Add to your `mix.exs`:
+Add to your `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:phoenix_web_console, "~> 0.1.0"}
+    {:phoenix_web_console, "~> 0.1.0"},
+    {:phoenix_live_reload, "~> 1.5"}  # Required for web console functionality
   ]
 end
 ```
 
-2. Run `mix deps.get`
+Then run:
+```bash
+mix deps.get
+```
 
-3. Enable in `config/dev.exs`:
+### Step 2: Configure your endpoint
+
+Add to your `config/dev.exs`:
 
 ```elixir
 config :my_app, MyAppWeb.Endpoint,
@@ -59,16 +45,20 @@ config :my_app, MyAppWeb.Endpoint,
   ]
 ```
 
-4. Add to your `assets/js/app.js`:
+### Step 3: Enable client-side logging
+
+Add to your `assets/js/app.js`:
 
 ```javascript
+// Enable Phoenix Web Console Logger
 window.addEventListener("phx:live_reload:attached", ({detail: reloader}) => {
+  // Enable server log streaming to client
   reloader.enableServerLogs()
   window.liveReloader = reloader
 })
 ```
 
-</details>
+That's it! 🎉
 
 ## Usage
 
@@ -102,10 +92,19 @@ This library implements the Phoenix web console logging feature described in the
 To work on this library:
 
 ```bash
-git clone https://github.com/yourusername/phoenix_web_console.git
+git clone https://github.com/AJReade/phoenix_web_console.git
 cd phoenix_web_console
 mix deps.get
 mix test
+```
+
+## Automatic Installation (Advanced)
+
+For an automated installation experience, check out the `igniter` branch which includes Igniter-based installation:
+
+```bash
+git checkout igniter
+mix igniter.install AJReade.phoenix_web_console AJReade/phoenix_web_console@igniter
 ```
 
 ## Contributing
@@ -119,4 +118,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Credits
 
 Based on the implementation described by Chris McCord in the [Phoenix Dev Blog](https://fly.io/phoenix-files/phoenix-dev-blog-server-logs-in-the-browser-console/).
-

@@ -6,7 +6,7 @@ defmodule PhoenixWebConsole.MixProject do
       app: :phoenix_web_console,
       version: "0.1.0",
       elixir: "~> 1.14",
-      description: "Easy Phoenix web console logging installer using Igniter",
+      description: "Phoenix web console logging library",
       package: package(),
       start_permanent: Mix.env() == :prod,
       deps: deps()
@@ -20,7 +20,7 @@ defmodule PhoenixWebConsole.MixProject do
       links: %{
         "GitHub" => "https://github.com/yourusername/phoenix_web_console"
       },
-      files: ~w(lib priv mix.exs README.md LICENSE CHANGELOG.md)
+      files: ~w(lib mix.exs README.md LICENSE CHANGELOG.md)
     ]
   end
 
@@ -34,8 +34,6 @@ defmodule PhoenixWebConsole.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:igniter, "~> 0.3", optional: true},
-      {:phoenix_live_reload, "~> 1.5", optional: true},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
