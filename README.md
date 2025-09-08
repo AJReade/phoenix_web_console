@@ -12,23 +12,26 @@ Easy Phoenix web console logging installer using Igniter. Stream your Phoenix se
 
 ## Installation
 
-### Automatic Installation (Recommended)
-
-Install and configure automatically using Igniter:
+**One command. Zero configuration. That's it.**
 
 ```bash
 mix igniter.install phoenix_web_console
 ```
 
-This will:
-- Add the dependency to your `mix.exs`
-- Update your `config/dev.exs` to enable web console logging
-- Update your `assets/js/app.js` to receive server logs
-- Ensure `phoenix_live_reload ~> 1.5` is available
+This automatically:
+- ✅ Adds the dependency to your `mix.exs`
+- ✅ Updates your `config/dev.exs` to enable web console logging
+- ✅ Updates your `assets/js/app.js` to receive server logs
+- ✅ Ensures `phoenix_live_reload ~> 1.5` is available
 
-### Manual Installation
+**No manual code changes required!**
 
-Add to your `mix.exs`:
+<details>
+<summary>💡 Advanced: Manual Installation (click to expand)</summary>
+
+If you prefer manual setup or need more control:
+
+1. Add to your `mix.exs`:
 
 ```elixir
 def deps do
@@ -38,13 +41,9 @@ def deps do
 end
 ```
 
-Then run:
+2. Run `mix deps.get`
 
-```bash
-mix deps.get
-```
-
-Enable in `config/dev.exs`:
+3. Enable in `config/dev.exs`:
 
 ```elixir
 config :my_app, MyAppWeb.Endpoint,
@@ -58,7 +57,7 @@ config :my_app, MyAppWeb.Endpoint,
   ]
 ```
 
-Add to your `assets/js/app.js`:
+4. Add to your `assets/js/app.js`:
 
 ```javascript
 window.addEventListener("phx:live_reload:attached", ({detail: reloader}) => {
@@ -66,6 +65,8 @@ window.addEventListener("phx:live_reload:attached", ({detail: reloader}) => {
   window.liveReloader = reloader
 })
 ```
+
+</details>
 
 ## Usage
 
