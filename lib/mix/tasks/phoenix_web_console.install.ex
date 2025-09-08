@@ -37,69 +37,59 @@ defmodule Mix.Tasks.PhoenixWebConsole.Install do
   @impl Igniter.Mix.Task
   def igniter(igniter) do
     igniter
-    |> ensure_phoenix_web_console_dependency()
     |> ensure_phoenix_live_reload_dependency()
     |> update_dev_config()
     |> update_app_js()
     |> add_setup_instructions()
   end
 
-  defp ensure_phoenix_web_console_dependency(igniter) do
-    # Add phoenix_web_console dependency in the correct GitHub format
-    Igniter.Project.Deps.add_dep(igniter, {:phoenix_web_console, [github: "AJReade/phoenix_web_console", only: :dev]})
-  end
-
   defp ensure_phoenix_live_reload_dependency(igniter) do
-    # Ensure phoenix_live_reload is available since it's required for web console functionality
+    # Note: phoenix_web_console dependency is automatically handled by Igniter
+    # We only need to ensure phoenix_live_reload is available for web console functionality
     Igniter.Project.Deps.add_dep(igniter, {:phoenix_live_reload, "~> 1.5"}, type: :dev)
   end
 
   defp update_dev_config(igniter) do
-    config_path = "config/dev.exs"
-
-    Igniter.update_file(igniter, config_path, fn content ->
-      if String.contains?(content, "web_console_logger") do
-        # Already configured, don't modify
-        content
-      else
-        # Add web_console_logger configuration
-        updated_content = String.replace(
-          content,
-          ~r/(live_reload:\s*\[)/,
-          "\\1\n    web_console_logger: true,"
-        )
-
-        # If live_reload config doesn't exist, add it
-        if String.contains?(updated_content, "live_reload:") do
-          updated_content
-        else
-          # Find the endpoint config and add live_reload
-          # Extract app name from existing config if possible
-          app_name = case Regex.run(~r/config\s+:([^,]+),/, content) do
-            [_, app] -> String.trim(app)
-            _ -> "my_app"
-          end
-
-          String.replace(
-            content,
-            ~r/(config\s+:[^,]+,\s+[^,]+Endpoint,\s*\[)/,
-            "\\1\n  live_reload: [\n    web_console_logger: true,\n    patterns: [\n      ~r\"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$\",\n      ~r\"priv/gettext/.*(po)$\",\n      ~r\"lib/#{app_name}_web/(controllers|live|components)/.*(ex|heex)$\"\n    ]\n  ],"
-          )
+    app_name = Igniter.Project.Application.app_name(igniter)
+    
+    igniter
+    |> Igniter.Project.Config.configure(
+      "config/dev.exs",
+      app_name,
+      [:endpoint, :live_reload, :web_console_logger],
+      true
+    )
+    |> Igniter.Project.Config.configure(
+      "config/dev.exs", 
+      app_name,
+      [:endpoint, :live_reload, :patterns],
+      [
+        ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
+        ~r"priv/gettext/.*(po)$", 
+        ~r"lib/#{app_name}_web/(controllers|live|components)/.*(ex|heex)$"
+      ],
+      updater: fn zipper ->
+        # If patterns already exist, don't override them, just ensure they include our web_console patterns
+        case Igniter.Code.Common.move_to_cursor_match_in_scope(zipper, ["patterns:", "__cursor__"]) do
+          {:ok, _zipper} ->
+            # Patterns already exist, leave them as is
+            zipper
+          :error ->
+            # No patterns found, add our default patterns
+            Igniter.Code.Common.replace_code(zipper, [
+              ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
+              ~r"priv/gettext/.*(po)$", 
+              ~r"lib/#{app_name}_web/(controllers|live|components)/.*(ex|heex)$"
+            ])
         end
       end
-    end)
+    )
   end
 
   defp update_app_js(igniter) do
     app_js_path = "assets/js/app.js"
-
-    Igniter.update_file(igniter, app_js_path, fn content ->
-      if String.contains?(content, "phx:live_reload:attached") do
-        # Event listener already exists, don't modify
-        content
-      else
-        # Add the event listener
-        content <> """
+    
+    js_code = """
 
 // Phoenix Web Console Logger - Stream server logs to browser console
 window.addEventListener("phx:live_reload:attached", ({detail: reloader}) => {
@@ -109,6 +99,15 @@ window.addEventListener("phx:live_reload:attached", ({detail: reloader}) => {
   window.liveReloader = reloader
 })
 """
+
+    Igniter.update_file(igniter, app_js_path, fn content ->
+      content_string = to_string(content)
+      if String.contains?(content_string, "phx:live_reload:attached") do
+        # Event listener already exists, don't modify
+        content
+      else
+        # Add the event listener
+        content_string <> js_code
       end
     end)
   end
