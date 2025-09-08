@@ -51,24 +51,34 @@ defmodule Mix.Tasks.PhoenixWebConsole.Install do
   end
 
   defp update_dev_config(igniter) do
-    # For now, just add a simple notice that manual config is needed
-    # This avoids the Unicode issues while still providing functionality
+    app_name = Igniter.Project.Application.app_name(igniter)
+    
+    # Use the proper endpoint module format that Phoenix expects
+    endpoint_module = Module.concat([
+      Macro.camelize(to_string(app_name)), 
+      "Web", 
+      "Endpoint"
+    ])
+    
     igniter
-    |> Igniter.add_notice("""
-    Manual configuration required for config/dev.exs:
-    
-    Please add the following to your endpoint configuration in config/dev.exs:
-    
-    config :your_app, YourAppWeb.Endpoint,
-      live_reload: [
-        web_console_logger: true,
-        patterns: [
-          ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
-          ~r"priv/gettext/.*(po)$",
-          ~r"lib/your_app_web/(controllers|live|components)/.*(ex|heex)$"
-        ]
+    # Configure web_console_logger
+    |> Igniter.Project.Config.configure(
+      "config/dev.exs",
+      app_name,
+      [endpoint_module, :live_reload, :web_console_logger], 
+      true
+    )
+    # Configure patterns using AST representation to avoid Unicode issues
+    |> Igniter.Project.Config.configure(
+      "config/dev.exs",
+      app_name, 
+      [endpoint_module, :live_reload, :patterns],
+      [
+        {:sigil_r, [], [{:<<>>, [], ["priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$"]}, []]},
+        {:sigil_r, [], [{:<<>>, [], ["priv/gettext/.*(po)$"]}, []]},
+        {:sigil_r, [], [{:<<>>, [], ["lib/#{app_name}_web/(controllers|live|components)/.*(ex|heex)$"]}, []]}
       ]
-    """)
+    )
   end
 
   defp update_app_js(igniter) do
